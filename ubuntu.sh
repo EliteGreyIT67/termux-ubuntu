@@ -8,7 +8,7 @@ tarball="ubuntu.tar.gz"
 if [ "$first" != 1 ];then
 	if [ ! -f $tarball ]; then
 		echo "downloading ubuntu-image"
-		case `dpkg --print-architecture` in
+		case $(dpkg --print-architecture) in
 		aarch64)
 			archurl="arm64" ;;
 		arm)
@@ -24,14 +24,15 @@ if [ "$first" != 1 ];then
 		esac
 		wget "https://partner-images.canonical.com/core/bionic/current/ubuntu-bionic-core-cloudimg-${archurl}-root.tar.gz" -O $tarball
 	fi
-	cur=`pwd`
+	cur=$(pwd)
 	mkdir -p "$folder"
-	cd "$folder"
+	cd "$folder" || exit
 	echo "decompressing ubuntu image"
-	proot --link2symlink tar -xf ${cur}/${tarball} --exclude='dev'||:
+	proot --link2symlink tar -xf "${cur}"/${tarball} --exclude='dev'||:
 	echo "fixing nameserver, otherwise it can't connect to the internet"
-	echo "nameserver 1.1.1.1" > etc/resolv.conf
-	cd "$cur"
+	echo "nameserver 8.8.8.8" > etc/resolv.conf
+	echo "nameserver 8.8.4.4" > etc/resolv.conf
+	cd "$cur" || exit
 fi
 mkdir -p binds
 bin=start-ubuntu.sh
